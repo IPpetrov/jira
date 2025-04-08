@@ -171,7 +171,7 @@ def process_simple_list(jira, issues, server_url):
 
 FILTERS = {
     "ready_tasks": {
-        "name": "Open tasks with linked tasks",
+        "name": "Main Tasks with Resolved or Missing linked tasks",
         "description": "Tasks assigned to you where any 'Blocks' links point to either all resolved issues or there's no links. Configure projects and excluded types.",
         "configurable": True,
         "configurable_params": ["projects", "exclude_types"],
@@ -400,5 +400,5 @@ def run_filter(filter_id):
                                username=session.get('user_display_name', 'User')
                                )
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

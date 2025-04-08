@@ -2,3 +2,4 @@ Flask
 jira
 python-dotenv
 gunicorn
+Werkzeug
