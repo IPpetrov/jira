@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ result_title }}</title> {# Use dynamic title #}
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        h1, h2 { margin-bottom: 10px; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .error { color: red; background-color: #fdd; border: 1px solid red; padding: 10px; margin-bottom: 15px; border-radius: 4px;}
+        .reason { font-style: italic; color: #555; font-size: 0.9em; margin-left: 10px;} /* Style the reason */
+        .filter-info { background-color: #eef; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #dde;}
+        .filter-info h2 { margin-top: 0;}
+        .nav-links { margin-top: 20px; }
+        .user-info { margin-bottom: 20px; text-align: right;}
+        .logout-link { margin-left: 15px; font-size: 0.9em;}
+        .nav-links a { text-decoration: none; background-color: #007bff; color: white; padding: 8px 15px; border-radius: 4px; display: inline-block; }
+        .nav-links a:hover { background-color: #0056b3; }
+        .reason {color: green;}
+        .issue-type { /* Style for the issue type */
+            display: inline-block;
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-right: 8px;
+            vertical-align: middle; /* Align nicely with text */
+        }
+        li .summary { /* Target summary specifically if needed */
+             vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="user-info">
+        Logged in as: <strong>{{ username }}</strong>
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </div>
+
+    <h1>{{ result_title }}</h1> {# Use dynamic title #}
+
+     <div class="filter-info">
+        <h2>Filter: {{ filter_name }}</h2>
+        {% if filter_description %}
+            <p>{{ filter_description }}</p>
+        {% endif %}
+    </div>
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <div class="nav-links">
+        <a href="{{ url_for('select_filter') }}">Select Another Filter</a>
+    </div>
+    
+    <h2>Results</h2>
+    {% if results %}
+        <ul>
+            {% for task in results %}
+                <li>
+                    {# Display Issue Type #}
+                    {% if task.issuetype %}
+                        <span class="issue-type">{{ task.issuetype }}</span>
+                    {% endif %}
+
+                    {# Link and Summary #}
+                    <a href="{{ task.url }}" target="_blank">{{ task.key }}</a> - <span class="summary">{{ task.summary }}</span>
+
+                    {# Reason (if available) #}
+                    {% if task.reason %}
+                        <span class="reason">({{ task.reason }})</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif not error %}
+        <p>No tasks found matching this filter.</p>
+    {% endif %}
+
+    <div class="nav-links">
+        {# Link back to configuration ONLY if the filter *was* configurable #}
+        {% if filter_id and filters[filter_id].get('configurable') %}
+         <a href="{{ url_for('configure_filter', filter_id=filter_id) }}">Re-configure This Filter</a> |
+        {% endif %}
+    </div>
+
+</body>
+</html>

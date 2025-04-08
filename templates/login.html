@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jira Filter Login</title>
+     <style>
+        body { font-family: sans-serif; padding: 20px; }
+        label { display: block; margin-top: 10px; }
+        input[type="text"], input[type="password"] { width: 300px; padding: 8px; margin-top: 5px; }
+        button { padding: 10px 20px; margin-top: 20px; cursor: pointer; }
+        .error, .alert-error { color: red; background-color: #fdd; border: 1px solid red; padding: 10px; margin-bottom: 15px; border-radius: 4px;}
+        .success, .alert-success { color: green; background-color: #dfd; border: 1px solid green; padding: 10px; margin-bottom: 15px; border-radius: 4px;}
+        .warning, .alert-warning { color: #856404; background-color: #fff3cd; border: 1px solid #ffeeba; padding: 10px; margin-bottom: 15px; border-radius: 4px;}
+        .info, .alert-info { color: #0c5460; background-color: #d1ecf1; border: 1px solid #bee5eb; padding: 10px; margin-bottom: 15px; border-radius: 4px;}
+    </style>
+</head>
+<body>
+    <h1>Jira Filter Login</h1>
+
+    {# Display Flashed Messages #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {# Display error passed directly (keep for now if needed, but flash is better) #}
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('authenticate') }}">
+        {# Consider adding CSRF protection later #}
+        <label for="jira_email">Jira Email:</label>
+        <input type="text" id="jira_email" name="jira_email" required><br>
+
+        <label for="jira_api_token">Jira API Token:</label>
+        <input type="password" id="jira_api_token" name="jira_api_token" required><br> {# Use type="password" #}
+
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>

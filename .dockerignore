@@ -1,0 +1,31 @@
+# .dockerignore
+
+# Git files
+.git
+.gitignore
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Python virtual environment
+venv
+.venv
+env
+.env
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE specific folders
+.idea/
+.vscode/
+
+# Add any other files/folders you don't need in the image
+# e.g., local configuration, test data, build artifacts

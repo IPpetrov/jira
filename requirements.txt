@@ -1,0 +1,4 @@
+Flask
+jira
+python-dotenv
+gunicorn

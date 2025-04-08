@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Jira Filter</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .filter-list { list-style: none; padding: 0; }
+        .filter-list li { border: 1px solid #ccc; margin-bottom: 15px; padding: 15px; border-radius: 5px; background-color: #f9f9f9; }
+        .filter-list h3 { margin-top: 0; margin-bottom: 5px; }
+        .filter-list p { margin-bottom: 10px; color: #555; font-size: 0.9em;}
+        .filter-list a { text-decoration: none; background-color: #007bff; color: white; padding: 8px 15px; border-radius: 4px; display: inline-block; }
+        .filter-list a:hover { background-color: #0056b3; }
+        .filter-list a.config-link { background-color: #ffc107; color: #333; } /* Style configure button differently */
+        .filter-list a.config-link:hover { background-color: #e0a800; }
+        .user-info { margin-bottom: 20px; }
+        .logout-link { margin-left: 15px; font-size: 0.9em;}
+    </style>
+</head>
+<body>
+    <div class="user-info">
+        Logged in as: <strong>{{ username }}</strong>
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </div>
+
+    <h1>Select a Jira Filter</h1>
+
+    <ul class="filter-list">
+        {% for filter_id, filter_data in filters.items() %}
+            <li>
+                <h3>{{ filter_data.name }}</h3>
+                {% if filter_data.description %}
+                    <p>{{ filter_data.description }}</p>
+                {% endif %}
+
+                {# --- Link Logic --- #}
+                {% if filter_data.get('configurable') %}
+                    {# Link to the configuration page #}
+                    <a href="{{ url_for('configure_filter', filter_id=filter_id) }}" class="config-link">Configure & Run</a>
+                {% else %}
+                    {# Link directly to run the filter #}
+                    <a href="{{ url_for('run_filter', filter_id=filter_id) }}">Run Filter</a>
+                {% endif %}
+            </li>
+        {% else %}
+            <li>No filters defined.</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Configure Filter: {{ filter_data.name }}</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        h1, h2 { margin-bottom: 10px; }
+        .user-info { margin-bottom: 20px; text-align: right;}
+        .logout-link { margin-left: 15px; font-size: 0.9em;}
+        form { background-color: #f8f9fa; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px; margin-top: 20px;}
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"] { width: 95%; padding: 8px; margin-bottom: 15px; border: 1px solid #ced4da; border-radius: 4px; }
+        button { padding: 10px 20px; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 4px; }
+        button:hover { background-color: #218838; }
+        .help-text { font-size: 0.85em; color: #6c757d; margin-bottom: 15px; margin-top: -10px;}
+        .nav-links { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="user-info">
+        Logged in as: <strong>{{ username }}</strong>
+        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+    </div>
+
+    <h1>Configure Filter: {{ filter_data.name }}</h1>
+    {% if filter_data.description %}
+        <p>{{ filter_data.description }}</p>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('configure_filter', filter_id=filter_id) }}">
+        <h2>Set Parameters</h2>
+
+        {# --- Projects Input --- #}
+        {% if "projects" in filter_data.get('configurable_params', []) %}
+        <div>
+            <label for="projects">Projects (comma-separated):</label>
+            <input type="text" id="projects" name="projects" value="{{ form_defaults.projects }}">
+            <p class="help-text">Enter the Jira project keys you want to include (e.g., STM, PROJ, AB). Leave blank to use defaults.</p>
+        </div>
+        {% endif %}
+
+        {# --- Exclude Types Input --- #}
+        {% if "exclude_types" in filter_data.get('configurable_params', []) %}
+        <div>
+            <label for="exclude_types">Exclude Issue Types (comma-separated):</label>
+            <input type="text" id="exclude_types" name="exclude_types" value="{{ form_defaults.exclude_types }}">
+            <p class="help-text">Enter any additional issue types to exclude (e.g., Sub-task, Story). <br><strong>Note:</strong> 'Epic' is always excluded for this filter as Epics usually represent larger initiatives.</p>
+        </div>
+        {% endif %}
+
+        {# --- Add more inputs for other configurable params if needed --- #}
+
+        <button type="submit">Run Filter with these Parameters</button>
+    </form>
+
+     <div class="nav-links">
+        <a href="{{ url_for('select_filter') }}">Back to Filter Selection</a>
+    </div>
+
+</body>
+</html>
