@@ -691,6 +691,8 @@ def run_filter(filter_id):
 
 from datetime import timedelta
 
+app.permanent_session_lifetime = timedelta(days=7)
+
 if __name__ == "__main__":
-    app.permanent_session_lifetime = timedelta(days=7)
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    port = int(os.environ.get("PORT", 8080))
+    app.run(debug=True, host="0.0.0.0", port=port)
