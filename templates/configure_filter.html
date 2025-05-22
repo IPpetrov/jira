@@ -3,18 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Configure Filter: {{ filter_data.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
     <style>
+        /* Styles remain the same */
         body { font-family: sans-serif; padding: 20px; }
         h1, h2 { margin-bottom: 10px; }
         .user-info { margin-bottom: 20px; text-align: right;}
         .logout-link { margin-left: 15px; font-size: 0.9em;}
         form { background-color: #f8f9fa; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px; margin-top: 20px;}
+        .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"] { width: 95%; padding: 8px; margin-bottom: 15px; border: 1px solid #ced4da; border-radius: 4px; }
+        input[type="text"], input[type="number"], select {
+            box-sizing: border-box; width: 97%; max-width: 518px;
+            padding: 8px; margin-bottom: 5px; border: 1px solid #ced4da; border-radius: 4px;
+        }
+        .select2-container .select2-selection--single {
+            box-sizing: border-box; height: 37px; padding: 8px;
+            border: 1px solid #ced4da; border-radius: 4px;
+        }
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            line-height: 19px; padding-left: 0; padding-right: 0;
+        }
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+             height: 35px; top: 0px;
+        }
+        .select2-container { width: 97% !important; max-width: 518px; }
         button { padding: 10px 20px; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 4px; }
         button:hover { background-color: #218838; }
-        .help-text { font-size: 0.85em; color: #6c757d; margin-bottom: 15px; margin-top: -10px;}
+        .help-text { font-size: 0.85em; color: #6c757d; margin-top: 0; margin-bottom: 5px; }
         .nav-links { margin-top: 20px; }
+        .nav-links a { margin-right: 10px; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -28,35 +48,84 @@
         <p>{{ filter_data.description }}</p>
     {% endif %}
 
-    <form method="post" action="{{ url_for('configure_filter', filter_id=filter_id) }}">
-        <h2>Set Parameters</h2>
+    {% if filter_data.configurable_params %}
+        <form method="post" action="{{ url_for('configure_filter', filter_id=filter_id) }}">
+            <h2>Set Parameters</h2>
 
-        {# --- Projects Input --- #}
-        {% if "projects" in filter_data.get('configurable_params', []) %}
-        <div>
-            <label for="projects">Projects (comma-separated):</label>
-            <input type="text" id="projects" name="projects" value="{{ form_defaults.projects }}">
-            <p class="help-text">Enter the Jira project keys you want to include (e.g., STM, PROJ, AB). Leave blank to use defaults.</p>
-        </div>
-        {% endif %}
+            {% for param in filter_data.configurable_params %}
+            <div class="form-group">
+                <label for="{{ param.id }}">{{ param.label }}:</label>
 
-        {# --- Exclude Types Input --- #}
-        {% if "exclude_types" in filter_data.get('configurable_params', []) %}
-        <div>
-            <label for="exclude_types">Exclude Issue Types (comma-separated):</label>
-            <input type="text" id="exclude_types" name="exclude_types" value="{{ form_defaults.exclude_types }}">
-            <p class="help-text">Enter any additional issue types to exclude (e.g., Sub-task, Story). <br><strong>Note:</strong> 'Epic' is here by default to exclude roadmap projects or initiatives.</p>
-        </div>
-        {% endif %}
+                {% if param.id == 'assignee' %}
+                    {# --- Assignee Dropdown --- #}
+                    {% set current_assignee_value = current_values.get(param.id, filter_data.defaults.get('assignee', 'currentUser()')) %} {# Use current_values if available, else default #}
+                    <select id="{{ param.id }}" name="{{ param.id }}" data-placeholder="Search or select assignee...">
+                        <option value="currentUser()" {% if current_assignee_value == 'currentUser()' %}selected{% endif %}>
+                            Current User (Default)
+                        </option>
+                        {# --- ADDED 'ANY ASSIGNEE' OPTION --- #}
+                        <option value="__any__" {% if current_assignee_value == '__any__' %}selected{% endif %}>
+                            Any Assignee
+                        </option>
+                        {# --- END ADDITION --- #}
 
-        {# --- Add more inputs for other configurable params if needed --- #}
+                        {% for user in assignable_users %} {# Users from PMO group #}
+                            <option value="{{ user.id }}" {% if current_assignee_value == user.id %}selected{% endif %}>
+                                {{ user.text }}
+                            </option>
+                        {% endfor %}
+                        {# Handle saved value not in list #}
+                        {% if current_assignee_value and current_assignee_value not in ['currentUser()', '__any__'] and current_assignee_value not in assignable_users|map(attribute='id')|list %}
+                           <option value="{{ current_assignee_value }}" selected>{{ current_assignee_value }} (Saved value / Not in current list)</option>
+                        {% endif %}
+                    </select>
+                    {# --- End Assignee Dropdown --- #}
 
-        <button type="submit">Run Filter with these Parameters</button>
-    </form>
+                {% else %} {# Handle other parameter types #}
+                    {% set current_param_value = current_values.get(param.id, filter_data.defaults.get(param.id, '')) %}
+                    {% if param.type == 'text' and current_param_value is iterable and current_param_value is not string %}
+                        {% set display_value = current_param_value | join(', ') %}
+                    {% else %}
+                        {% set display_value = current_param_value %}
+                    {% endif %}
+                    <input type="{{ param.type | default('text') }}"
+                           id="{{ param.id }}"
+                           name="{{ param.id }}"
+                           value="{{ display_value }}"
+                           {% if param.type == 'number' %} step="1" {% endif %}
+                           >
+                {% endif %} {# End assignee check #}
+
+                {% if param.help_text %}
+                <p class="help-text">{{ param.help_text }}</p>
+                {% endif %}
+            </div>
+            {% endfor %} {# End parameter loop #}
+
+            <button type="submit">Run Filter with these Parameters</button>
+        </form>
+    {% else %} {# Not configurable #}
+        <p>This filter is not configurable.</p>
+        {# Submit GET request to run_filter directly #}
+        <form method="get" action="{{ url_for('run_filter', filter_id=filter_id) }}">
+             <button type="submit">Run Filter with Defaults</button>
+        </form>
+    {% endif %} {# End configurable check #}
 
      <div class="nav-links">
         <a href="{{ url_for('select_filter') }}">Back to Filter Selection</a>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#assignee').select2({
+                theme: "bootstrap-5",
+                allowClear: true
+            });
+        });
+    </script>
 
 </body>
 </html>

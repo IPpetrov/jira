@@ -2,9 +2,6 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-ENV PORT 8080
-ENV HOST 0.0.0.0
-
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 

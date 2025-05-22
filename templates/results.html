@@ -11,13 +11,15 @@
         .error { color: red; background-color: #fdd; border: 1px solid red; padding: 10px; margin-bottom: 15px; border-radius: 4px;}
         .reason { font-style: italic; color: #555; font-size: 0.9em; margin-left: 10px;} /* Style the reason */
         .filter-info { background-color: #eef; padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #dde;}
-        .filter-info h2 { margin-top: 0;}
-        .nav-links { margin-top: 20px; }
+        .filter-info h2, .filter-info h3 { margin-top: 0; margin-bottom: 8px;}
+        .filter-params dt { font-weight: bold; float: left; clear: left; width: 150px; /* Adjust width as needed */ text-align: right; margin-right: 10px; }
+        .filter-params dd { margin-left: 160px; /* Should be >= dt width + margin */ margin-bottom: 5px; }
+        .nav-links { margin-top: 20px; margin-bottom: 20px; } /* Added margin-bottom */
         .user-info { margin-bottom: 20px; text-align: right;}
         .logout-link { margin-left: 15px; font-size: 0.9em;}
-        .nav-links a { text-decoration: none; background-color: #007bff; color: white; padding: 8px 15px; border-radius: 4px; display: inline-block; }
+        .nav-links a { text-decoration: none; background-color: #007bff; color: white; padding: 8px 15px; border-radius: 4px; display: inline-block; margin-right: 10px; /* Added spacing */}
         .nav-links a:hover { background-color: #0056b3; }
-        .reason {color: green;}
+        .reason {color: green;} /* Keep this if you like green reasons */
         .issue-type { /* Style for the issue type */
             display: inline-block;
             background-color: #e9ecef;
@@ -31,6 +33,7 @@
         li .summary { /* Target summary specifically if needed */
              vertical-align: middle;
         }
+        .no-results { font-style: italic; color: #6c757d; }
     </style>
 </head>
 <body>
@@ -43,19 +46,43 @@
 
      <div class="filter-info">
         <h2>Filter: {{ filter_name }}</h2>
-        {% if filter_description %}
+        {% if filter_description %} {# Assuming backend passes this #}
             <p>{{ filter_description }}</p>
+        {% endif %}
+
+        {# Display Parameters Used #}
+        {% if filter_params_used %}
+            <h3>Parameters Used:</h3>
+            <dl class="filter-params">
+                {% for key, value in filter_params_used.items() %}
+                    <dt>{{ key.replace('_', ' ').title() }}:</dt> {# Nicer key display #}
+                    <dd>
+                        {% if value is none or value == '' %}
+                            <i>(Not set/Default)</i>
+                        {% elif value is iterable and value is not string %}
+                            {{ value | join(', ') }}
+                        {% else %}
+                            {{ value }}
+                        {% endif %}
+                    </dd>
+                {% endfor %}
+            </dl>
         {% endif %}
     </div>
 
     {% if error %}
-    <p class="error">{{ error }}</p>
+    <p class="error"><strong>Error:</strong> {{ error }}</p>
     {% endif %}
 
+    {# --- Navigation moved above results for quicker access --- #}
     <div class="nav-links">
         <a href="{{ url_for('select_filter') }}">Select Another Filter</a>
+        {# Link back to configuration ONLY if the filter *was* configurable #}
+        {% if is_configurable %} {# Use the flag passed from backend #}
+         <a href="{{ url_for('configure_filter', filter_id=filter_id) }}">Re-configure This Filter</a>
+        {% endif %}
     </div>
-    
+
     <h2>Results</h2>
     {% if results %}
         <ul>
@@ -77,15 +104,10 @@
             {% endfor %}
         </ul>
     {% elif not error %}
-        <p>No tasks found matching this filter.</p>
+        <p class="no-results">No tasks found matching the specified criteria.</p>
     {% endif %}
 
-    <div class="nav-links">
-        {# Link back to configuration ONLY if the filter *was* configurable #}
-        {% if filter_id and filters[filter_id].get('configurable') %}
-         <a href="{{ url_for('configure_filter', filter_id=filter_id) }}">Re-configure This Filter</a> |
-        {% endif %}
-    </div>
+    {# Removed duplicate nav links from bottom #}
 
 </body>
 </html>

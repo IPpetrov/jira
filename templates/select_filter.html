@@ -24,7 +24,6 @@
     </div>
 
     <h1>Select a Jira Filter</h1>
-
     <ul class="filter-list">
         {% for filter_id, filter_data in filters.items() %}
             <li>
@@ -34,7 +33,7 @@
                 {% endif %}
 
                 {# --- Link Logic --- #}
-                {% if filter_data.get('configurable') %}
+                {% if filter_data.get('configurable_params') %}
                     {# Link to the configuration page #}
                     <a href="{{ url_for('configure_filter', filter_id=filter_id) }}" class="config-link">Configure & Run</a>
                 {% else %}
@@ -46,6 +45,12 @@
             <li>No filters defined.</li>
         {% endfor %}
     </ul>
+
+    <ul>
+        {% for user in users %}
+          <li>{{ user.displayName }} ({{ user.name or user.emailAddress }})</li>
+        {% endfor %}
+      </ul>
 
 </body>
 </html>
