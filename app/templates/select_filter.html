@@ -20,7 +20,7 @@
 <body>
     <div class="user-info">
         Logged in as: <strong>{{ username }}</strong>
-        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        <a href="{{ url_for('main.logout') }}" class="logout-link">Logout</a>
     </div>
 
     <h1>Select a Jira Filter</h1>
@@ -35,10 +35,10 @@
                 {# --- Link Logic --- #}
                 {% if filter_data.get('configurable_params') %}
                     {# Link to the configuration page #}
-                    <a href="{{ url_for('configure_filter', filter_id=filter_id) }}" class="config-link">Configure & Run</a>
+                    <a href="{{ url_for('main.configure_filter', filter_id=filter_id) }}" class="config-link">Configure & Run</a>
                 {% else %}
                     {# Link directly to run the filter #}
-                    <a href="{{ url_for('run_filter', filter_id=filter_id) }}">Run Filter</a>
+                    <a href="{{ url_for('main.run_filter', filter_id=filter_id) }}">Run Filter</a>
                 {% endif %}
             </li>
         {% else %}

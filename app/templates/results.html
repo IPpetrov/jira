@@ -39,7 +39,7 @@
 <body>
     <div class="user-info">
         Logged in as: <strong>{{ username }}</strong>
-        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        <a href="{{ url_for('main.logout') }}" class="logout-link">Logout</a>
     </div>
 
     <h1>{{ result_title }}</h1> {# Use dynamic title #}
@@ -76,10 +76,10 @@
 
     {# --- Navigation moved above results for quicker access --- #}
     <div class="nav-links">
-        <a href="{{ url_for('select_filter') }}">Select Another Filter</a>
+        <a href="{{ url_for('main.select_filter') }}">Select Another Filter</a>
         {# Link back to configuration ONLY if the filter *was* configurable #}
         {% if is_configurable %} {# Use the flag passed from backend #}
-         <a href="{{ url_for('configure_filter', filter_id=filter_id) }}">Re-configure This Filter</a>
+         <a href="{{ url_for('main.configure_filter', filter_id=filter_id) }}">Re-configure This Filter</a>
         {% endif %}
     </div>
 

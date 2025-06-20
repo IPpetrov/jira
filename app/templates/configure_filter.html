@@ -40,7 +40,7 @@
 <body>
     <div class="user-info">
         Logged in as: <strong>{{ username }}</strong>
-        <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+        <a href="{{ url_for('main.logout') }}" class="logout-link">Logout</a>
     </div>
 
     <h1>Configure Filter: {{ filter_data.name }}</h1>
@@ -49,7 +49,7 @@
     {% endif %}
 
     {% if filter_data.configurable_params %}
-        <form method="post" action="{{ url_for('configure_filter', filter_id=filter_id) }}">
+        <form method="post" action="{{ url_for('main.configure_filter', filter_id=filter_id) }}">
             <h2>Set Parameters</h2>
 
             {% for param in filter_data.configurable_params %}
@@ -107,13 +107,13 @@
     {% else %} {# Not configurable #}
         <p>This filter is not configurable.</p>
         {# Submit GET request to run_filter directly #}
-        <form method="get" action="{{ url_for('run_filter', filter_id=filter_id) }}">
+        <form method="get" action="{{ url_for('main.run_filter', filter_id=filter_id) }}">
              <button type="submit">Run Filter with Defaults</button>
         </form>
     {% endif %} {# End configurable check #}
 
      <div class="nav-links">
-        <a href="{{ url_for('select_filter') }}">Back to Filter Selection</a>
+        <a href="{{ url_for('main.select_filter') }}">Back to Filter Selection</a>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -31,7 +31,7 @@
         <p class="error">{{ error }}</p>
     {% endif %}
 
-    <form method="post" action="{{ url_for('authenticate') }}">
+    <form method="post" action="{{ url_for('main.authenticate') }}">
         {# Consider adding CSRF protection later #}
         <label for="jira_email">Jira Email:</label>
         <input type="text" id="jira_email" name="jira_email" required><br>
